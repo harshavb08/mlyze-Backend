@@ -34,97 +34,68 @@ lr=LogisticRegression(random_state=0)
 def analysefun(datasetSelected,datasetFile,datasetOuputCol,classifier,kval):
     res=[]
     global df,x,y,X_train, X_test,y_train,y_test
-    cm=[]
-    accuracy=-1
-    precisons=-1
-    f1score=-1
-    recall=-1
+    
     dataset=datasetSelected
-    if  dataset=="diabetes":
-        df = pd.read_csv("csvfiles/diabetes.csv")
-        y = df['Outcome']
-        x = df.drop("Outcome",axis = 1)
-        X_train, X_test,y_train,y_test = train_test_split(x,y,test_size = 0.25)
-    elif dataset=="heartStroke":
-        df = pd.read_csv("csvfiles/strokes.csv")
-        y = df['stroke']
-        x = df.drop("stroke",axis = 1)
-        X_train, X_test,y_train,y_test = train_test_split(x,y,test_size = 0.25)
+
+    datasets = {
+        "diabetes"     : {
+            "path"  : "diabetes.csv",
+            "target": "Outcome",
+        },
+        "heartStroke"  : {
+            "path"  : "strokes.csv",
+            "target": "stroke",
+        },
+    }
+
+    if dataset in datasets:
+        current_dataset = datasets[dataset]
+        df = pd.read_csv(f"csvfiles/{current_dataset['path']}")
+        y = df[current_dataset['target']]
+        x = df.drop(
+            current_dataset['target'],
+            axis = 1
+        )
+        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size = 0.25)
     elif dataset=="customDataset":
-        fs=FileSystemStorage()
-        filePathName=fs.save(datasetFile.name,datasetFile)
-        filePathName=fs.url(filePathName)
-        filePath='.'+filePathName
+        fs = FileSystemStorage()
+        filePathName = fs.save(datasetFile.name,datasetFile)
+        filePathName = fs.url(filePathName)
+        filePath = '.'+filePathName
         df = pd.read_csv(filePath)
+
         y = df[datasetOuputCol]
         x = df.drop(datasetOuputCol,axis = 1)
         X_train, X_test,y_train,y_test = train_test_split(x,y,test_size = 0.25)
 
-    if classifier=="svm":
-        svm.fit(X_train,y_train)
-        y_pred_svm=svm.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_svm)
-        precisons=precision_score(y_test,y_pred_svm,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_svm)
-        f1score=f1_score(y_test,y_pred_svm,average='weighted')
-        recall=recall_score(y_test,y_pred_svm,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
 
-    elif classifier=="decisionTree":
-        dt.fit(X_train,y_train)
-        y_pred_dt=dt.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_dt)
-        precisons=precision_score(y_test,y_pred_dt,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_dt)
-        f1score=f1_score(y_test,y_pred_dt,average='weighted')
-        recall=recall_score(y_test,y_pred_dt,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
-    elif classifier=="randomForest":
-        rf.fit(X_train,y_train)
-        y_pred_rf=rf.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_rf)
-        precisons=precision_score(y_test,y_pred_rf,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_rf)
-        f1score=f1_score(y_test,y_pred_rf,average='weighted')
-        recall=recall_score(y_test,y_pred_rf,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
-    elif classifier=="naiveBayes":
-        gnb.fit(X_train,y_train)
-        y_pred_gnb=gnb.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_gnb)
-        precisons=precision_score(y_test,y_pred_gnb,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_gnb)
-        f1score=f1_score(y_test,y_pred_gnb,average='weighted')
-        recall=recall_score(y_test,y_pred_gnb,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
-    elif classifier=="knn":
-        knn = KNeighborsClassifier(n_neighbors=int(kval))
-        knn.fit(X_train,y_train)
-        y_pred_knn=knn.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_knn)
-        precisons=precision_score(y_test,y_pred_knn,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_knn)
-        f1score=f1_score(y_test,y_pred_knn,average='weighted')
-        recall=recall_score(y_test,y_pred_knn,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
-    elif classifier=="adaBoost":
-        ada.fit(X_train,y_train)
-        y_pred_ada=ada.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_ada)
-        precisons=precision_score(y_test,y_pred_ada,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_ada)
-        f1score=f1_score(y_test,y_pred_ada,average='weighted')
-        recall=recall_score(y_test,y_pred_ada,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
-    elif classifier=="logisticRegression":
-        lr.fit(X_train,y_train)
-        y_pred_lr=lr.predict(X_test)
-        accuracy=accuracy_score(y_test,y_pred_lr)
-        precisons=precision_score(y_test,y_pred_lr,average='weighted')
-        cm=confusion_matrix(y_test,y_pred_lr)
-        f1score=f1_score(y_test,y_pred_lr,average='weighted')
-        recall=recall_score(y_test,y_pred_lr,average='weighted')
-        res.append({'classifier':classifier,'accuracy':accuracy*100,'precisons':precisons,'f1score':f1score,'recall':recall,'cm':cm.tolist()})
+    models = {
+        "svm"               : SVC(),
+        "decisionTree"      : GaussianNB(),
+        "randomForest"      : RandomForestClassifier(n_estimators = 25),
+        "naiveBayes"        : tree.DecisionTreeClassifier(),
+        "knn"               : KNeighborsClassifier(n_neighbors=int(kval)),
+        "logisticRegression":LogisticRegression(random_state=0),
+    }
+    
+    model = models[classifier]
+    model.fit(X_train,y_train)
+    y_pred      = model.predict(X_test)
+    accuracy    = accuracy_score(y_test, y_pred)
+    precisons   = precision_score(y_test, y_pred, average='weighted')
+    cm          = confusion_matrix(y_test, y_pred)
+    f1score     = f1_score(y_test, y_pred, average='weighted')
+    recall      = recall_score(y_test,y_pred,average='weighted')
+
+    res.append({
+        'classifier'    : classifier,
+        'accuracy'      : accuracy * 100,
+        'precisons'     : precisons,
+        'f1score'       : f1score,
+        'recall'        : recall,
+        'cm'            : cm.tolist()
+    })
+
     return res
 
 
