@@ -71,9 +71,9 @@ def analysefun(datasetSelected,datasetFile,datasetOuputCol,classifier,kval):
 
     models = {
         "svm"               : SVC(),
-        "decisionTree"      : GaussianNB(),
+        "decisionTree"      : tree.DecisionTreeClassifier(),
         "randomForest"      : RandomForestClassifier(n_estimators = 25),
-        "naiveBayes"        : tree.DecisionTreeClassifier(),
+        "naiveBayes"        : GaussianNB(),
         "knn"               : KNeighborsClassifier(n_neighbors=int(kval)),
         "logisticRegression":LogisticRegression(random_state=0),
     }
